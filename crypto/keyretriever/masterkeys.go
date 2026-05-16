@@ -9,9 +9,15 @@ import (
 // (Chrome 127+ on Windows mixes v10+v20; Linux can mix v10+v11), so each tier must be populated
 // independently for lossless decryption. A nil tier means that cipher version cannot be decrypted.
 type MasterKeys struct {
-	V10 []byte
-	V11 []byte
-	V20 []byte
+	V10 []byte `json:"v10,omitempty"`
+	V11 []byte `json:"v11,omitempty"`
+	V20 []byte `json:"v20,omitempty"`
+}
+
+// HasAny reports whether at least one tier carries a usable key. Centralizes the "is this MasterKeys
+// worth keeping" check so new tiers (V21, V12, …) only need to be added here, not at every caller.
+func (k MasterKeys) HasAny() bool {
+	return k.V10 != nil || k.V11 != nil || k.V20 != nil
 }
 
 // Retrievers is the per-tier retriever configuration; unused slots are nil.
